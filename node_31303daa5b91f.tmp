@@ -1,0 +1,130 @@
+// const rp = require('request-promise')
+// const cheerio = require('cheerio')
+// const options = {
+//   uri: 'http://prosangue.sp.gov.br/home/',
+//   transform: function (body) {
+//     return cheerio.load(body)
+//   }
+// }
+
+// function processarDados(dados){
+//   console.log(JSON.stringify(dados))
+// }
+// rp(options)
+//   .then(($) => {
+//     const sangue = []
+//   $('.estoque').each((i, item) => {
+
+        
+//         $(item).children().each((i, p) => {
+//             //console.log($(p).text() + "   " + $(p).find('li span').attr('class'))
+
+//             const estoqueatual ={
+//               tsangue: $(p).text(),
+//               estado: $(p).find('li span').attr('class')
+//             }
+//             console.log(estoqueatual)
+            
+//         })
+//     })
+//   })
+//   .catch((err) => {
+//     console.log(err);
+//   })
+
+/*
+http://www.prosangue.sp.gov.br/home/
+ÚLTIMA ATUALIZAÇÃO
+O+
+a+
+aB+
+B+
+O-
+A-
+AB-
+B-
+*/
+
+const puppteer = require('puppeteer');
+const cheerio = require('cheerio');
+const mongoose = require('mongoose');
+const megaSchema = require('./megaSchema');
+
+async function extrairDados(){
+    const browser = await puppteer.launch();
+    const page = await browser.newPage();
+    await page.goto('http://www.prosangue.sp.gov.br/home/')
+    let html = await page.content();
+    const $ = await cheerio.load(html);
+    //console.log(html);
+    let data = $(`#posicao_estoque > div.caixa.pt-BR > p`).text()
+    
+    const sangue = []
+        $('.estoque').each((i, item) => {
+              $(item).children().each((i, p) => {
+                  //console.log($(p).text() + "   " + $(p).find('li span').attr('class'))
+      
+                  const estoqueatual = $(p).text()
+                    
+                  console.log(estoqueatual)
+                 
+                  
+                sangue.push(estoqueatual)
+               
+              })
+            
+              //console.log(estoqueatual)
+              console.log(sangue)
+          })
+        
+          console.log(sangue)
+                
+       
+    let san = JSON.stringify(sangue)
+    console.log(san)
+    browser.close();
+    return san;
+}
+
+async function base(){
+    const objdados = await extrairDados();
+    console.log(objdados)
+    mongoose.connect('mongodb://localhost:27017/mega',{
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+})
+.then(result =>{
+    console.log('conectado.')
+})
+.catch(error =>{
+    console.log('Erro')
+})
+    const tbresultado = mongoose.model('tbresultado', megaSchema);
+    const consulta = await tbresultado.find({sangue: objdados.tsangue});
+
+    function estavazia(obj){
+        for(const prop in obj){
+            if(obj.hasOwnProperty(prop))
+            return false
+        }
+        return true
+    }
+    if(estavazia(consulta)){
+        const resultado = new tbresultado({
+        
+            estoqueatual: objdados.estoqueatual
+        });
+        resultado.save(function (err, resultado){
+            if(err)
+            return console.log(err);
+        });
+        console.log('Cadastro realizado!')
+       
+    }else{
+        console.log('Esse concurso já existe!');
+
+    }
+}
+
+base();
+

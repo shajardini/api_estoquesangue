@@ -58,6 +58,7 @@ async function extrairDados(){
     const $ = await cheerio.load(html);
     //console.log(html);
     let data = $(`#posicao_estoque > div.caixa.pt-BR > p`).text()
+    
     const sangue = []
         $('.estoque').each((i, item) => {
               $(item).children().each((i, p) => {
@@ -69,57 +70,19 @@ async function extrairDados(){
                   }
                   if(estoqueatual.tsangue !== "")
                   sangue.push(estoqueatual)
+                  
+                
               })
             
               //console.log(data)
               //console.log(sangue)
           })
         
-  
+          console.log(sangue)
                 
        
     
     browser.close();
     return sangue;
 }
-
-async function base(){
-    const objdados = await extrairDados();
-    mongoose.connect('mongodb://localhost:27017/mega',{
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-})
-.then(result =>{
-    console.log('conectado.')
-})
-.catch(error =>{
-    console.log('Erro')
-})
-    const tbresultado = mongoose.model('tbresultado', megaSchema);
-    const consulta = await tbresultado.find({concurso:objdados.sangue});
-
-    function estavazia(){
-        for(const prop in objdados){
-            if(objdados.hasOwnProperty(prop))
-            return false
-        }
-        return true
-    }
-    if(estavazia(consulta)){
-        const resultado = new tbresultado({
-        
-            tipoSangue: objdados.sangue,
-        });
-        resultado.save(function (error, resultado){
-            if(err)
-            return console.log(err);
-        });
-        console.log('Cadastro realizado!')
-       
-    }else{
-        console.log('Esse concurso já existe!');
-
-    }
-}
-
-base();
+extrairDados()

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const megaSchema = mongoose.Schema({
-   tipoSangue: String,
+   estoqueatual: String
 });
 
 module.exports = megaSchema;
