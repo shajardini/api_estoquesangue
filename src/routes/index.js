@@ -1,5 +1,6 @@
 const rp = require('request-promise')
 const cheerio = require('cheerio')
+const sangue= []
 const options = {
   uri: 'http://prosangue.sp.gov.br/home/',
   transform: function (body) {
@@ -10,7 +11,7 @@ const options = {
 
 rp(options)
   .then(($) => {
-    const sangue= []
+   
     
    
   $('.estoque').each((i, item) => {
@@ -24,10 +25,10 @@ rp(options)
               estado: $(p).find('li span').attr('class')
             }
             
-            console.log(estoqueatual)
+            //console.log(estoqueatual)
             sangue.push(estoqueatual)
         })
-     
+        console.log(JSON.stringify(sangue))
     })
     return sangue
   })
@@ -42,8 +43,7 @@ rp(options)
   const router = express.Router();
   router.get('/', function (req, res, next) {
       res.status(200).send({
-          title: "Node Express API",
-          version: "0.0.1"
+          sangue
       });
   });
   module.exports = router;
