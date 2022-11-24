@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
     "express": "^4.15.4",
     "puppeteer": "^19.2.2",
     "request-promise": "^4.2.6",
@@ -13,7 +14,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
-    "dev": "env-cmd -f ./config/dev.env nodemon ./bin/server.js" 
+    "dev": "env-cmd -f ./config/dev.env nodemon ./bin/server.js"
   },
   "keywords": [],
   "author": "",
